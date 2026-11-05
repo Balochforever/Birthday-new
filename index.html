@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Happy Birthday, My Love</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Cormorant:ital@0;1&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+
+:root{
+  --paper:#FBF3EC;
+  --paper-deep:#F3E4D8;
+  --ink:#3B2A2E;
+  --maroon:#8C3A4A;
+  --maroon-deep:#5F2430;
+  --gold:#C9A15A;
+  --wax:#A63B4A;
+  --line:rgba(59,42,46,.14);
+}
+
+
+/* ================= RESET ================= */
+
+*,
+*::before,
+*::after{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Jost',sans-serif;
+  font-weight:300;
+  overflow:hidden;
+  min-height:100svh;
+}
+
+::selection{
+  background:var(--maroon);
+  color:var(--paper);
+}
+
+h1,
+h2,
+h3,
+.serif{
+  font-family:'Cormorant Garamond',serif;
+}
+
+a{
+  color:inherit;
+}
+
+button:focus-visible,
+a:focus-visible{
+  outline:2px solid var(--maroon);
+  outline-offset:3px;
+}
+
+
+/* ================= ENVELOPE INTRO ================= */
+
+#envelope-screen{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:
+    radial-gradient(
+      ellipse at 50% 30%,
+      #6b2733 0%,
+      #4a1b24 55%,
+      #33131a 100%
+    );
+
+  transition:opacity 1s ease, visibility 1s ease;
+}
+
+#envelope-screen.hidden{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
+
+
+/* Stars */
+
+.stars{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+}
+
+.star{
+  position:absolute;
+  width:2px;
+  height:2px;
+  background:rgba(255,240,225,.7);
+  border-radius:50%;
+  animation:twinkle 3s ease-in-out infinite;
+}
+
+@keyframes twinkle{
+
+  0%,
+  100%{
+    opacity:.15;
+  }
+
+  50%{
+    opacity:.9;
+  }
+
+}
+
+
+/* Envelope wrapper */
+
+.envelope-wrap{
+  position:relative;
+  z-index:2;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+
+  gap:2.2rem;
+  padding:2rem;
+}
+
+.envelope-label{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:clamp(1.1rem,3vw,1.4rem);
+  color:#F3DCC9;
+  letter-spacing:.02em;
+  text-align:center;
+}
+
+
+/* Envelope */
+
+.envelope{
+  position:relative;
+
+  width:min(78vw,300px);
+  height:calc(min(78vw,300px) * .68);
+
+  cursor:pointer;
+
+  filter:
+    drop-shadow(
+      0 18px 40px rgba(0,0,0,.45)
+    );
+
+  perspective:1000px;
+}
+
+
+/* Envelope body */
+
+.env-body{
+  position:absolute;
+  inset:0;
+
+  background:
+    linear-gradient(
+      155deg,
+      #F8EDE1 0%,
+      #EFDCC8 100%
+    );
+
+  border-radius:6px;
+
+  z-index:1;
+}
+
+
+/* Bottom envelope folds */
+
+.env-shadow-fold{
+  position:absolute;
+
+  left:0;
+  right:0;
+  bottom:0;
+
+  height:62%;
+
+  background:
+    linear-gradient(
+      155deg,
+      #EFDCC8 0%,
+      #E4CBAE 100%
+    );
+
+  clip-path:polygon(
+    0 100%,
+    50% 0,
+    100% 100%
+  );
+
+  z-index:2;
+}
+
+
+/* Letter/card inside envelope */
+
+.env-card{
+  position:absolute;
+
+  left:8%;
+  right:8%;
+
+  top:10%;
+
+  height:78%;
+
+  background:#FFFDF9;
+
+  border-radius:4px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  text-align:center;
+
+  padding:1rem;
+
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+
+  font-size:1.4rem;
+
+  line-height:1.2;
+
+  color:var(--maroon-deep);
+
+  box-shadow:
+    0 5px 15px rgba(0,0,0,.15);
+
+  transform:translateY(15%);
+
+  opacity:0;
+
+  transition:
+    transform 1s cubic-bezier(.2,.7,.2,1),
+    opacity .6s ease;
+
+  z-index:3;
+}
+
+/* once the envelope is opening, the card must render above the flap
+   so the flap's rotated plane can never paint over it again */
+.envelope.opening .env-card{
+  z-index:6;
+}
+
+
+/* Envelope flap */
+
+.env-flap{
+  position:absolute;
+
+  top:0;
+  left:0;
+  right:0;
+
+  height:58%;
+
+  background:
+    linear-gradient(
+      160deg,
+      #EEDCC7 0%,
+      #E2C7A6 100%
+    );
+
+  clip-path:
+    polygon(
+      0 0,
+      100% 0,
+      50% 92%
+    );
+
+  transform-origin:top center;
+
+  transition:
+    transform .9s cubic-bezier(.6,-.1,.2,1.3);
+
+  border-radius:6px 6px 0 0;
+
+  z-index:4;
+
+  transform-style:preserve-3d;
+
+  backface-visibility:hidden;
+}
+
+.env-flap::after{
+  content:'';
+
+  position:absolute;
+  inset:0;
+
+  background:
+    linear-gradient(
+      160deg,
+      rgba(255,255,255,.25),
+      rgba(0,0,0,.05)
+    );
+
+  clip-path:inherit;
+}
+
+
+/* Wax seal */
+
+.wax-seal{
+  position:absolute;
+
+  top:38%;
+  left:50%;
+
+  transform:
+    translate(-50%,-50%);
+
+  width:54px;
+  height:54px;
+
+  border-radius:50%;
+
+  background:
+    radial-gradient(
+      circle at 35% 30%,
+      #C94F5E,
+      var(--wax) 60%,
+      #7C2836 100%
+    );
+
+  box-shadow:
+    0 4px 10px rgba(0,0,0,.35),
+    inset 0 -3px 6px rgba(0,0,0,.25),
+    inset 0 2px 4px rgba(255,255,255,.25);
+
+  z-index:5;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+
+  font-size:1.5rem;
+
+  color:#F3DCC9;
+
+  transition:
+    transform .4s ease,
+    opacity .4s ease;
+}
+
+
+/* Envelope opening animation */
+
+.envelope.opening .env-flap{
+  transform:rotateX(-200deg);
+}
+
+.envelope.opening .wax-seal{
+  opacity:0;
+  transform:
+    translate(-50%,-50%)
+    scale(.7);
+}
+
+.envelope.opening .env-card{
+  transform:translateY(-78%);
+  opacity:1;
+}
+
+
+/* Open hint */
+
+.open-hint{
+  font-size:.7rem;
+  letter-spacing:.16em;
+
+  color:#D9B98F;
+
+  text-transform:lowercase;
+
+  animation:
+    hintfloat 2.2s ease-in-out infinite;
+}
+
+@keyframes hintfloat{
+
+  0%,
+  100%{
+    transform:translateY(0);
+    opacity:.7;
+  }
+
+  50%{
+    transform:translateY(-4px);
+    opacity:1;
+  }
+
+}
+
+
+/* ================= MAIN SITE ================= */
+
+#site{
+  opacity:0;
+  transition:opacity 1.2s ease;
+}
+
+#site.revealed{
+  opacity:1;
+}
+
+.wrap{
+  max-width:640px;
+  margin:0 auto;
+  padding:0 1.6rem;
+}
+
+
+/* ================= HERO ================= */
+
+.hero{
+  position:relative;
+
+  min-height:92svh;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+
+  text-align:center;
+
+  padding:4rem 1.6rem;
+
+  background:
+    radial-gradient(
+      ellipse at 50% 0%,
+      var(--paper-deep) 0%,
+      var(--paper) 60%
+    );
+}
+
+.hero-kicker{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+
+  color:var(--maroon);
+
+  font-size:1.05rem;
+
+  letter-spacing:.02em;
+
+  margin-bottom:1.4rem;
+}
+
+.hero-kicker::before,
+.hero-kicker::after{
+  content:'✦';
+
+  color:var(--gold);
+
+  margin:0 .6em;
+
+  font-size:.7em;
+
+  vertical-align:middle;
+}
+
+.hero h1{
+  font-size:clamp(2.6rem,11vw,4.6rem);
+
+  font-weight:500;
+
+  line-height:1.05;
+
+  color:var(--maroon-deep);
+
+  max-width:14ch;
+}
+
+.hero-date{
+  margin-top:1.6rem;
+
+  font-size:.85rem;
+
+  color:var(--ink);
+
+  opacity:.55;
+}
+
+
+/* Scroll indicator */
+
+.hero-scroll{
+  position:absolute;
+
+  bottom:2.2rem;
+  left:50%;
+
+  transform:translateX(-50%);
+
+  font-size:.7rem;
+
+  letter-spacing:.18em;
+
+  color:var(--maroon);
+
+  opacity:.6;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+
+  gap:.5rem;
+}
+
+.hero-scroll .line{
+  width:1px;
+  height:26px;
+
+  background:
+    linear-gradient(
+      var(--maroon),
+      transparent
+    );
+
+  animation:
+    scrolldown 1.8s ease-in-out infinite;
+}
+
+@keyframes scrolldown{
+
+  0%{
+    transform:scaleY(0);
+    transform-origin:top;
+  }
+
+  50%{
+    transform:scaleY(1);
+    transform-origin:top;
+  }
+
+  51%{
+    transform-origin:bottom;
+  }
+
+  100%{
+    transform:scaleY(0);
+    transform-origin:bottom;
+  }
+
+}
+
+
+/* ================= GALLERY ================= */
+
+.gallery{
+  padding:5rem 0 4rem;
+}
+
+.gallery-head{
+  text-align:center;
+  margin-bottom:2.6rem;
+}
+
+.gallery-head h2{
+  font-size:clamp(1.5rem,5vw,2rem);
+
+  font-weight:500;
+
+  font-style:italic;
+
+  color:var(--maroon-deep);
+}
+
+.gallery-strip{
+  display:flex;
+
+  gap:1rem;
+
+  overflow-x:auto;
+
+  padding:.6rem 1.6rem 1.4rem;
+
+  scroll-snap-type:x mandatory;
+
+  -webkit-overflow-scrolling:touch;
+}
+
+.gallery-strip::-webkit-scrollbar{
+  height:5px;
+}
+
+.gallery-strip::-webkit-scrollbar-thumb{
+  background:var(--line);
+  border-radius:10px;
+}
+
+.photo{
+  scroll-snap-align:center;
+
+  flex:0 0 auto;
+
+  width:min(62vw,250px);
+
+  aspect-ratio:4/5;
+
+  border-radius:10px;
+
+  overflow:hidden;
+
+  position:relative;
+
+  background:var(--paper-deep);
+
+  cursor:pointer;
+
+  box-shadow:
+    0 10px 30px rgba(59,42,46,.14);
+}
+
+.photo img,
+.photo video{
+  width:100%;
+  height:100%;
+
+  object-fit:cover;
+
+  display:block;
+
+  transition:
+    transform .5s ease;
+}
+
+.photo:hover video{
+  transform:scale(1.06);
+}
+
+.photo:nth-child(odd){
+  transform:rotate(-1.1deg);
+}
+
+.photo:nth-child(even){
+  transform:rotate(1.1deg);
+
+  margin-top:1rem;
+}
+
+.gallery-hint{
+  text-align:center;
+
+  font-size:.72rem;
+
+  letter-spacing:.1em;
+
+  color:var(--ink);
+
+  opacity:.45;
+
+  margin-top:.4rem;
+}
+
+
+/* ================= LIGHTBOX ================= */
+
+#lightbox{
+  position:fixed;
+
+  inset:0;
+
+  z-index:90;
+
+  background:rgba(30,18,20,.92);
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  opacity:0;
+
+  visibility:hidden;
+
+  transition:
+    opacity .35s ease,
+    visibility .35s ease;
+
+  padding:2rem;
+}
+
+#lightbox.open{
+  opacity:1;
+  visibility:visible;
+}
+
+#lightbox video{
+  max-width:min(90vw,480px);
+
+  max-height:82vh;
+
+  border-radius:8px;
+
+  box-shadow:
+    0 20px 60px rgba(0,0,0,.5);
+}
+
+#lightbox-close{
+  position:absolute;
+
+  top:1.4rem;
+  right:1.6rem;
+
+  background:none;
+
+  border:
+    1px solid rgba(255,255,255,.3);
+
+  color:#F3E4D8;
+
+  width:42px;
+  height:42px;
+
+  border-radius:50%;
+
+  font-size:1.2rem;
+
+  cursor:pointer;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+
+/* ================= LETTER ================= */
+
+.letter{
+  padding:2rem 0 5rem;
+}
+
+.letter-inner{
+  background:
+    linear-gradient(
+      180deg,
+      #FFFDF9,
+      var(--paper-deep)
+    );
+
+  border:1px solid var(--line);
+
+  border-radius:14px;
+
+  padding:
+    clamp(1.8rem,6vw,3.2rem);
+
+  box-shadow:
+    0 10px 40px rgba(59,42,46,.08);
+
+  position:relative;
+}
+
+.letter-inner::before{
+  content:'';
+
+  position:absolute;
+
+  top:0;
+
+  left:2.4rem;
+  right:2.4rem;
+
+  height:1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      var(--gold),
+      transparent
+    );
+}
+
+.letter-greeting{
+  font-family:'Cormorant Garamond',serif;
+
+  font-style:italic;
+
+  font-size:
+    clamp(1.4rem,5vw,1.9rem);
+
+  color:var(--maroon-deep);
+
+  margin-bottom:1.6rem;
+}
+
+.letter-body p{
+  font-size:1.02rem;
+
+  line-height:1.9;
+
+  color:var(--ink);
+
+  max-width:60ch;
+}
+
+.letter-body p + p{
+  margin-top:1.3em;
+}
+
+.letter-signoff{
+  margin-top:2.2rem;
+
+  font-family:'Cormorant Garamond',serif;
+
+  font-style:italic;
+
+  font-size:1.3rem;
+
+  color:var(--maroon);
+
+  text-align:right;
+}
+
+
+/* ================= CLOSING ================= */
+
+.closing{
+  text-align:center;
+
+  padding:2rem 1.6rem 5rem;
+}
+
+.closing-heart{
+  font-size:1.6rem;
+
+  color:var(--maroon);
+
+  margin-bottom:1rem;
+}
+
+.closing h2{
+  font-size:
+    clamp(1.8rem,7vw,2.6rem);
+
+  font-weight:500;
+
+  font-style:italic;
+
+  color:var(--maroon-deep);
+
+  line-height:1.2;
+}
+
+.closing p{
+  margin-top:.9rem;
+
+  font-size:.95rem;
+
+  color:var(--ink);
+
+  opacity:.7;
+
+  letter-spacing:.02em;
+}
+
+footer{
+  text-align:center;
+
+  padding:1.6rem;
+
+  font-size:.7rem;
+
+  letter-spacing:.14em;
+
+  color:var(--ink);
+
+  opacity:.4;
+}
+
+
+/* ================= MOBILE ================= */
+
+@media(max-width:600px){
+
+  .envelope{
+    width:250px;
+    height:170px;
+  }
+
+  .wax-seal{
+    width:48px;
+    height:48px;
+  }
+
+  .env-card{
+    font-size:1.25rem;
+  }
+
+  .gallery-strip{
+    padding-left:1rem;
+    padding-right:1rem;
+  }
+
+}
+
+
+/* ================= REDUCED MOTION ================= */
+
+@media(prefers-reduced-motion:reduce){
+
+  *,
+  *::before,
+  *::after{
+    animation:none !important;
+    transition:none !important;
+  }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<!-- ================= ENVELOPE INTRO ================= -->
+
+<div id="envelope-screen">
+
+  <div class="stars" id="stars"></div>
+
+  <div class="envelope-wrap">
+
+    <p class="envelope-label">
+      A little something<br>
+      for June 20th
+    </p>
+
+    <div
+      class="envelope"
+      id="envelope"
+      role="button"
+      tabindex="0"
+      aria-label="Open envelope"
+    >
+
+      <div class="env-body"></div>
+
+      <div class="env-shadow-fold"></div>
+
+      <div class="env-card">
+        Happy Birthday, my baby 💖💋
+      </div>
+
+      <div class="env-flap"></div>
+
+      <div class="wax-seal">
+        N
+      </div>
+
+    </div>
+
+    <p class="open-hint">
+      tap the seal to open
+    </p>
+
+  </div>
+
+</div>
+
+
+
+<!-- ================= MAIN SITE ================= -->
+
+<div id="site">
+
+
+  <!-- HERO -->
+
+  <section class="hero">
+
+    <p class="hero-kicker">
+      Eshatt
+    </p>
+
+    <h1>
+      Happy Birthday, my love
+    </h1>
+
+    <p class="hero-date">
+      November Sixth
+    </p>
+
+    <div class="hero-scroll">
+      <span class="line"></span>
+      scroll
+    </div>
+
+  </section>
+
+
+
+  <!-- GALLERY -->
+
+  <section class="gallery">
+
+    <div class="gallery-head">
+
+      <h2>
+        A few of my favourites
+      </h2>
+
+    </div>
+
+
+    <div class="gallery-strip" id="gallery-strip">
+
+      <div class="photo">
+        <video src="1.mp4" autoplay muted loop playsinline preload="metadata"></video>
+      </div>
+
+      <div class="photo">
+        <video src="2.mp4" autoplay muted loop playsinline preload="metadata"></video>
+      </div>
+
+      <div class="photo">
+        <video src="3.mp4" autoplay muted loop playsinline preload="metadata"></video>
+      </div>
+
+      <div class="photo">
+        <video src="4.mp4" autoplay muted loop playsinline preload="metadata"></video>
+      </div>
+
+      <div class="photo">
+        <video src="5.mp4" autoplay muted loop playsinline preload="metadata"></video>
+      </div>
+
+    </div>
+
+
+    <p class="gallery-hint">
+      swipe to see more →
+    </p>
+
+  </section>
+
+
+
+  <!-- LETTER -->
+
+  <section class="letter wrap">
+
+    <div class="letter-inner">
+
+      <p class="letter-greeting">
+        My darling,
+      </p>
+
+      <div class="letter-body">
+
+        <p>
+          Every year this day comes around, and every year I find myself thinking the same thing how did I get so lucky. Today isn't just your birthday. It's the day the most beautiful, most important person in my life came into this world, and I don't take that for granted for a single second.
+        </p>
+
+        <p>
+          You are not just my girlfriend. You are my best friend, my peace, my favourite conversation, the person I want to tell everything to first. Every small thing about you your laugh, the way you talk with your hands, your little habits I've memorised without even trying makes my life better just by being in it.
+        </p>
+
+        <p>
+          I wish more than anything that I could be with you today. Holding your hand, watching you open your eyes this morning, seeing that smile in person instead of in a photo. The distance between us right now genuinely aches. I miss our conversations that run too long, I miss the quiet moments where nothing needs to be said, I miss simply having you close. No matter how many miles sit between us, you are always the thing my mind wanders back to.
+        </p>
+
+        <p>
+          You are so pretty it still catches me off guard sometimes, and so cute in a hundred small ways you probably don't even notice about yourself. But what I love most isn't how you look, it's your heart. The way you care for the people around you. The way you make ordinary days feel like they matter.
+        </p>
+
+        <p>
+          On your birthday, my only wish is that you feel as loved as you make everyone around you feel. I hope your day is soft and joyful and exactly as beautiful as you are. Thank you for choosing me, for staying close even from far away, and for every memory we've built together so far I want a lifetime more of them with you.
+        </p>
+
+        <p>
+          Happy birthday, my love. I love you more than I know how to put into words, and I can't wait to be back in your arms.
+        </p>
+
+      </div>
+
+      <p class="letter-signoff">
+        — always yours
+      </p>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- CLOSING -->
+
+  <section class="closing">
+
+    <div class="closing-heart">
+      ❤
+    </div>
+
+    <h2>
+      I love you forever, Eshatt.
+    </h2>
+
+    <p>
+      Happy birthday, my beautiful girlfriend.
+    </p>
+
+  </section>
+
+
+  <footer>
+    made with love, just for you 🩷
+  </footer>
+
+</div>
+
+
+
+<!-- ================= LIGHTBOX ================= -->
+
+<div id="lightbox">
+
+  <button
+    id="lightbox-close"
+    aria-label="Close"
+  >
+    ✕
+  </button>
+
+  <video
+    id="lightbox-video"
+    controls
+    loop
+    playsinline
+  ></video>
+
+</div>
+
+
+
+<script>
+
+/* ================= STARS ================= */
+
+const starsEl =
+  document.getElementById('stars');
+
+for(let i = 0; i < 40; i++){
+
+  const s =
+    document.createElement('div');
+
+  s.className = 'star';
+
+  s.style.left =
+    Math.random() * 100 + '%';
+
+  s.style.top =
+    Math.random() * 100 + '%';
+
+  s.style.animationDelay =
+    Math.random() * 3 + 's';
+
+  starsEl.appendChild(s);
+
+}
+
+
+/* ================= ENVELOPE ================= */
+
+const envelope =
+  document.getElementById('envelope');
+
+const envScreen =
+  document.getElementById('envelope-screen');
+
+const site =
+  document.getElementById('site');
+
+let opened = false;
+
+
+function openEnvelope(){
+
+  if(opened) return;
+
+  opened = true;
+
+  envelope.classList.add('opening');
+
+  setTimeout(() => {
+
+    envScreen.classList.add('hidden');
+
+    site.classList.add('revealed');
+
+    document.body.style.overflow = 'auto';
+
+  },1100);
+
+}
+
+
+envelope.addEventListener(
+  'click',
+  openEnvelope
+);
+
+
+envelope.addEventListener(
+  'keydown',
+  (e) => {
+
+    if(
+      e.key === 'Enter' ||
+      e.key === ' '
+    ){
+
+      e.preventDefault();
+
+      openEnvelope();
+
+    }
+
+  }
+);
+
+
+/* ================= LIGHTBOX ================= */
+
+const videos = document.querySelectorAll('.photo video');
+const lightbox = document.getElementById('lightbox');
+const lightboxVideo = document.getElementById('lightbox-video');
+const lightboxClose = document.getElementById('lightbox-close');
+
+/* play only while visible (saves battery and data on phones) */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting){
+      entry.target.play().catch(() => {});
+    } else {
+      entry.target.pause();
+    }
+  });
+}, { threshold: .4 });
+
+videos.forEach(v => io.observe(v));
+
+/* tap a video to open it bigger, with sound */
+videos.forEach(v => {
+  v.addEventListener('click', () => {
+    lightboxVideo.src = v.currentSrc || v.src;
+    lightbox.classList.add('open');
+    lightboxVideo.play().catch(() => {});
+  });
+});
+
+function closeLightbox(){
+  lightbox.classList.remove('open');
+  lightboxVideo.pause();
+  lightboxVideo.removeAttribute('src');
+  lightboxVideo.load();
+}
+
+lightboxClose.addEventListener('click', closeLightbox);
+
+lightbox.addEventListener('click', (e) => {
+  if(e.target === lightbox) closeLightbox();
+});
+
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape') closeLightbox();
+});
+
+</script>
+
+</body>
+</html>
